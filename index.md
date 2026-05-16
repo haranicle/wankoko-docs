@@ -1,6 +1,6 @@
 ---
 layout: default
-title: ワンココ ドキュメント
+title: ワンココ
 ---
 
 # ワンココ

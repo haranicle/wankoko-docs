@@ -3,7 +3,7 @@ layout: default
 title: ワンココ 利用規約
 ---
 
-**バージョン 0.1.0**（2026年5月15日施行）
+**バージョン:** {{ site.github.build_revision | slice: 0, 7 }}
 
 # ワンココ 利用規約
 
