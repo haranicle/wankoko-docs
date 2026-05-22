@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ワンココ - アカウントの削除</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif; background-color: #f5f5f5; margin: 0; padding: 0; }
+    .container { max-width: 480px; margin: 60px auto; background-color: #ffffff; border-radius: 12px; padding: 40px 32px; }
+    h1 { font-size: 22px; color: #1a1a1a; margin: 0 0 8px; }
+    .subtitle { color: #666666; font-size: 14px; margin: 0 0 32px; line-height: 1.6; }
+    label { display: block; font-size: 14px; font-weight: bold; color: #333333; margin-bottom: 8px; }
+    input[type="email"] { width: 100%; box-sizing: border-box; padding: 12px 14px; font-size: 15px; border: 1px solid #cccccc; border-radius: 8px; outline: none; }
+    input[type="email"]:focus { border-color: #1a1a1a; }
+    button { width: 100%; margin-top: 20px; padding: 14px; background-color: #cc3333; color: #ffffff; font-size: 15px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; }
+    button:hover { background-color: #aa2222; }
+    button:disabled { background-color: #aaaaaa; cursor: not-allowed; }
+    .note { margin-top: 24px; font-size: 12px; color: #999999; line-height: 1.6; }
+    .message { margin-top: 20px; padding: 14px; border-radius: 8px; font-size: 14px; display: none; }
+    .message.success { background-color: #f0fff0; border: 1px solid #99cc99; color: #336633; }
+    .message.error { background-color: #fff0f0; border: 1px solid #cc9999; color: #663333; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>アカウントの削除</h1>
+    <p class="subtitle">登録済みのメールアドレスを入力してください。確認メールを送信します。</p>
+    <div id="form-area">
+      <label for="email">メールアドレス</label>
+      <input type="email" id="email" required placeholder="example@example.com">
+      <button id="submit-btn" onclick="handleSubmit()">確認メールを送信する</button>
+    </div>
+    <div id="message" class="message"></div>
+    <p class="note">
+      ※ アカウントを削除すると、プロフィール・位置情報・ウォーク履歴などすべてのデータが完全に削除されます。この操作は取り消せません。<br>
+      ※ メールが届かない場合は迷惑メールフォルダをご確認ください。
+    </p>
+  </div>
+  <script>
+    async function handleSubmit() {
+      const email = document.getElementById('email').value.trim();
+      const btn = document.getElementById('submit-btn');
+      const msg = document.getElementById('message');
+
+      if (!email) return;
+
+      btn.disabled = true;
+      btn.textContent = '送信中...';
+      msg.style.display = 'none';
+
+      try {
+        const res = await fetch('https://bcpeverqdutfpuzqenjr.supabase.co/functions/v1/request-account-deletion', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          document.getElementById('form-area').style.display = 'none';
+          msg.className = 'message success';
+          msg.textContent = 'メールに記載されたリンクから、アカウントの削除を完了してください。リンクの有効期限は24時間です。';
+          msg.style.display = 'block';
+        } else {
+          msg.className = 'message error';
+          msg.textContent = data.error || '送信に失敗しました。しばらくしてからお試しください。';
+          msg.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = '確認メールを送信する';
+        }
+      } catch (_e) {
+        msg.className = 'message error';
+        msg.textContent = '通信エラーが発生しました。しばらくしてからお試しください。';
+        msg.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = '確認メールを送信する';
+      }
+    }
+
+    document.getElementById('email').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleSubmit();
+    });
+  </script>
+</body>
+</html>
